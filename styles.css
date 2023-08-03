@@ -1,0 +1,62 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+}
+
+.movie-container {
+  display: flex;
+  padding: 1rem;
+}
+
+.movie-details {
+  flex: 1;
+  padding: 1rem;
+}
+
+.movies-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+}
+
+.film.item {
+  cursor: pointer;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+}
+
+.film.item:hover {
+  background-color: #f9f9f9;
+}
+
+.sold-out {
+  color: red;
+  font-weight: bold;
+}
+
+.movie-details img {
+  max-width: 100%;
+  height: auto;
+}
+
+button {
+  cursor: pointer;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  margin-top: 1rem;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
