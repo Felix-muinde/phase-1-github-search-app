@@ -6,7 +6,7 @@ async function fetchMovies() {
   try {
     const response = await fetch('http://localhost:3000/films');
     const moviesData = await response.json();
-    return moviesData.films;
+    return moviesData;
   } catch (error) {
     console.error('Error fetching movie data:', error);
     return [];
