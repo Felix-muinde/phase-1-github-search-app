@@ -1,50 +1,73 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const filmsList = document.getElementById("films");
-  const movieDetails = document.getElementById("movie-details");
+const movieDetailsContainer = document.getElementById('movieDetails');
+const moviesList = document.getElementById('moviesList');
 
-  // Fetch movies data from JSON file
-  fetch("http://localhost:3000/films") // Replace with the actual JSON server endpoint
-      .then(response => response.json())
-      .then(data => {
-          data.forEach(movie => {
-              const listItem = document.createElement("li");
-              listItem.className = "film item";
-              listItem.textContent = movie.title;
-              listItem.addEventListener("click", () => displayMovieDetails(movie));
-              filmsList.appendChild(listItem);
-          });
-      });
-
-  // Display movie details
-  function displayMovieDetails(movie) {
-      const availableTickets = movie.capacity - movie.tickets_sold;
-
-      movieDetails.innerHTML = `
-          <div>
-              <img src="${movie.poster}" alt="${movie.title}" />
-              <h2>${movie.title}</h2>
-              <p>Runtime: ${movie.runtime} minutes</p>
-              <p>Showtime: ${movie.showtime}</p>
-              <p>Available Tickets: ${availableTickets}</p>
-              <button id="buy-ticket">Buy Ticket</button>
-          </div>
-      `;
-
-      const buyButton = document.getElementById("buy-ticket");
-      buyButton.addEventListener("click", () => buyTicket(movie));
+// Fetch movie data from the local JSON DB server
+async function fetchMovies() {
+  try {
+    const response = await fetch('http://localhost:3000/films');
+    const moviesData = await response.json();
+    return moviesData.films;
+  } catch (error) {
+    console.error('Error fetching movie data:', error);
+    return [];
   }
+}
 
-  // Buy ticket
-  function buyTicket(movie) {
-      const availableTickets = movie.capacity - movie.tickets_sold;
+// Display the movie details
+function displayMovieDetails(movie) {
+  const { title, poster, runtime, showtime, capacity, tickets_sold, description } = movie;
+  const ticketsAvailable = capacity - tickets_sold;
+  const movieDetailsHTML = `
+    <img src="${poster}" alt="${title}">
+    <h2>${title}</h2>
+    <p>Runtime: ${runtime} minutes</p>
+    <p>Showtime: ${showtime}</p>
+    <p>Description: ${description}</p>
+    <p>Tickets Available: ${ticketsAvailable}</p>
+    <button id="buyTicketButton">Buy Ticket</button>
+  `;
+  movieDetailsContainer.innerHTML = movieDetailsHTML;
 
-      if (availableTickets > 0) {
-          movie.tickets_sold++;
-          const updatedAvailableTickets = movie.capacity - movie.tickets_sold;
-          const availableTicketsElement = document.querySelector("#movie-details p:nth-child(4)");
-          availableTicketsElement.textContent = `Available Tickets: ${updatedAvailableTickets}`;
-      } else {
-          alert("Sorry, this show is sold out.");
-      }
+  // Add event listener to the "Buy Ticket" button
+  const buyTicketButton = document.getElementById('buyTicketButton');
+  buyTicketButton.addEventListener('click', () => {
+    if (ticketsAvailable > 0) {
+      movie.tickets_sold++;
+      displayMovieDetails(movie); // Update the ticket count
+    } else {
+      alert('Sorry, this showing is sold out!');
+    }
+  });
+}
+
+// Display the movies list
+function displayMoviesList(movies) {
+  moviesList.innerHTML = '';
+  movies.forEach((movie) => {
+    const { title, id, tickets_sold, capacity } = movie;
+    const ticketsAvailable = capacity - tickets_sold;
+    const movieItem = document.createElement('li');
+    movieItem.textContent = title;
+    movieItem.classList.add('film', 'item');
+    if (ticketsAvailable === 0) {
+      movieItem.classList.add('sold-out');
+    }
+    movieItem.addEventListener('click', () => displayMovieDetails(movie));
+    moviesList.appendChild(movieItem);
+  });
+}
+
+// Main function to initialize the app
+async function initializeApp() {
+  const movies = await fetchMovies();
+  if (movies.length > 0) {
+    displayMoviesList(movies);
+    displayMovieDetails(movies[0]); // Display the details of the first movie by default
+  } else {
+    console.error('No movies found.');
   }
-});
+}
+
+// Initialize the app
+initializeApp();
+
